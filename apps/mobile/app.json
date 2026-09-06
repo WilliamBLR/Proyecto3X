@@ -21,8 +21,17 @@
       },
       "predictiveBackGestureEnabled": true
     },
-    "plugins": ["expo-router", "expo-system-ui"],
-    "experiments": { "typedRoutes": true },
+    "plugins": [
+      "expo-router",
+      "expo-system-ui",
+      "expo-web-browser",
+      "expo-secure-store",
+      ["expo-audio", { "enableBackgroundPlayback": true, "enableBackgroundRecording": false, "microphonePermission": false, "recordAudioAndroid": false }],
+      "expo-notifications"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     }

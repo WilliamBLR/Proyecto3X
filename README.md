@@ -1,139 +1,70 @@
 # Proyecto 3X
 
-Aplicación móvil para preparar los exámenes teóricos y prácticos de conducir en Chile. Estudio a tu ritmo, práctica orientada a tus debilidades y una experiencia simple, accesible y gamificada.
+Proyecto 3X es una app Android/iOS para preparar la licencia de conducir en Chile con práctica guiada, progreso medible y material interactivo. La primera experiencia está enfocada en clase B y usa contenido propio de estudio enlazado a fuentes oficiales.
 
-**Estado: base técnica v0.1.0.** Esta entrega inicializa el proyecto; los módulos completos se desarrollarán por etapas. Android es la primera plataforma; la arquitectura comparte código con iOS.
+## Qué funciona
 
-Repositorio privado: [WilliamBLR/Proyecto3X](https://github.com/WilliamBLR/Proyecto3X).
+- Onboarding con nombre, licencia B, comuna, meta diaria y recordatorios locales.
+- Modo claro/oscuro, navegación Expo Router y botón persistente para iniciar un test.
+- Test del día (10 preguntas), simulacro de práctica clase B (35 preguntas, 3 dobles, 38 puntos, aprobación desde 33) y refuerzo de preguntas falladas.
+- Respuestas guardadas mientras se responde, temporizador absoluto que continúa al salir, resultado ponderado y explicación de cada error.
+- Dashboard con meta diaria, racha, XP, historial, aprobación de simulacros y temas por mejorar.
+- Seis lecciones originales, búsqueda, enlace al libro oficial 2026 y narración local en español con controles de reproducción.
+- Flashcards visuales de señales PARE, CEDA EL PASO, velocidad, no entrar, no estacionar y dirección obligada.
+- Día D con checklist municipal, preparación de reactímetro/coordinación/pulso y recordatorio para consultar el momento de la foto.
+- Cuenta por correo, recuperación de contraseña y respaldo Supabase protegido por RLS. Google está preparado en el código y queda bloqueado hasta registrar las credenciales OAuth del proyecto.
 
-## Stack
+El banco de 42 preguntas es material original de práctica. No declara ser el banco oficial ni reproduce preguntas reservadas de CONASET.
 
-| Capa | Elección | Motivo |
-| --- | --- | --- |
-| App | React Native + Expo SDK 57 + TypeScript | Una base Android/iOS, herramientas nativas y tipado estricto |
-| Navegación | Expo Router | Rutas por archivos y separación entre navegación y módulos |
-| Backend | Supabase | Auth, PostgreSQL con RLS, Storage y Realtime |
-| Desarrollo | Workspace pnpm + ESLint + GitHub Actions | Dependencias reproducibles y controles en cada PR |
-| Distribución | Perfiles EAS Build | APK de prueba y compilaciones de producción |
+## Stack y estructura
 
-## Qué incluye esta entrega
-
-- App navegable: Inicio, Estudiar, Tests y Día D.
-- Tema claro/oscuro según el sistema; componentes reutilizables y áreas seguras.
-- Botón persistente **Empezar Test** que abre el hub de modalidades. Todavía no inicia un examen.
-- Dashboard con estados vacíos, sin historial ni porcentajes simulados.
-- Cliente Supabase opcional, ejemplo de variables y migración inicial de perfiles con políticas por usuario.
-- Configuración Android/iOS, perfiles EAS, lint, tipos y CI de exportación Android.
-- Arquitectura, hoja de ruta y flujo Git documentados.
-
-**Pendiente:** login Email/Google, onboarding interactivo, persistencia de progreso, notificaciones, banco de preguntas, tests, analíticas, rachas, libro, audio, flashcards y ejercicios psicotécnicos. La migración no está aplicada y la app no está publicada ni firmada para tiendas.
-
-## Ejecutar localmente
-
-Requisitos: Git, Node.js 22.13+ (rama 22) o 24, y pnpm 11.19.0. Para abrir Android necesitas un emulador con Android SDK o un dispositivo. Los scripts usan un development build; Expo Go compatible puede seleccionarse con `s` en la terminal de Expo para revisar la base.
-
-```sh
-git clone https://github.com/WilliamBLR/Proyecto3X.git
-cd Proyecto3X
-npm install --global pnpm@11.19.0
-pnpm install --frozen-lockfile
-pnpm start
-```
-
-Sin backend configurado puedes revisar las pantallas. Para previsualizar en navegador: `pnpm web`. `pnpm android` abre el destino Android; `pnpm ios` abre iOS (simulador local requiere macOS y Xcode).
-
-Para un development build Android, instalar Android Studio/JDK según Expo y ejecutar desde `apps/mobile`:
-
-```sh
-pnpm exec expo run:android
-```
-
-### Configuración Supabase (cuando se implemente auth)
-
-En PowerShell:
-
-```powershell
-Copy-Item apps/mobile/.env.example apps/mobile/.env
-```
-
-Completar `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` con los valores del proyecto Supabase. Las variables `EXPO_PUBLIC_*` son públicas en la app; nunca usar claves secretas o `service_role`. El cliente nativo usa AsyncStorage para persistir la sesión; ese almacenamiento no está cifrado. Evaluar almacenamiento protegido antes de producción.
-
-Ver [backend y migraciones](supabase/README.md). Aún se deben provisionar Supabase, aplicar la migración, configurar OAuth y montar el proveedor de autenticación. No se necesitan credenciales para arrancar esta base visual.
-
-## Estructura de carpetas
+React Native + Expo SDK 57 + TypeScript, Expo Router, Supabase Auth/PostgreSQL y pnpm workspaces.
 
 ```text
-Proyecto3X/
-├── .github/
-│   ├── workflows/ci.yml            # Tipos, lint y exportación Android
-│   └── pull_request_template.md
-├── apps/
-│   └── mobile/
-│       ├── assets/                # Iconos provisionales de la plantilla Expo
-│       ├── src/
-│       │   ├── app/               # Rutas y layouts (Expo Router)
-│       │   │   ├── _layout.tsx
-│       │   │   └── (tabs)/         # Inicio, Estudiar, Tests, Día D
-│       │   ├── features/
-│       │   │   ├── auth/          # Contrato de implementación futura
-│       │   │   ├── onboarding/    # Tipos de preferencias y metas
-│       │   │   ├── dashboard/     # Pantalla inicial y futuro progreso
-│       │   │   ├── study/         # Hub de material
-│       │   │   ├── tests/         # Hub de modalidades
-│       │   │   └── exam-day/      # Preparación Día D
-│       │   ├── components/        # Screen, Card y texto compartido
-│       │   ├── theme/             # Colores semánticos claro/oscuro
-│       │   └── lib/               # Cliente Supabase
-│       ├── .env.example
-│       ├── app.json               # Configuración multiplataforma
-│       ├── eas.json               # Development, preview y production
-│       ├── eslint.config.js
-│       ├── tsconfig.json
-│       └── package.json
-├── supabase/
-│   ├── migrations/                # SQL versionado con RLS
-│   └── README.md
-├── docs/
-│   ├── architecture.md            # Límites, modelo de datos y UX
-│   └── roadmap.md                 # Módulos y criterios de publicación
-├── CONTRIBUTING.md
-├── package.json                   # Comandos del workspace
-├── pnpm-workspace.yaml
-├── pnpm-lock.yaml
-└── README.md
+apps/mobile/
+├── src/app/                  # rutas: tabs, onboarding, auth, quiz, resultados y material
+├── src/features/             # auth, onboarding, dashboard, estudio, tests y Día D
+├── src/domain/               # modelos Zod, motor de tests, analytics y pruebas PGlite
+├── src/content/              # preguntas, lecciones, señales y fuentes
+├── src/components/           # Screen, Card, controles y enlaces de fuente
+├── src/state/                # progreso local por usuario y sincronización Supabase
+├── src/lib/                  # sesión segura, recordatorios y medición de actividad
+└── assets/audio/             # seis narraciones locales en español
+supabase/migrations/          # perfiles, RLS y RPC server-side de sincronización
+docs/                         # arquitectura y hoja de ruta
 ```
 
-Las pantallas se agrupan por funcionalidad. Las rutas solo componen pantallas; los futuros servicios y reglas de negocio se incorporan en su módulo. Ver [arquitectura](docs/architecture.md).
+## Ejecutar
 
-## Alcance del producto
-
-| Módulo | Comportamiento previsto |
-| --- | --- |
-| Onboarding | Google/Email, clase B/C/profesionales, comuna, meta diaria y opt-in push |
-| Dashboard | Aprobación histórica, tests realizados, categorías por reforzar y rachas |
-| Estudio | Libro por capítulos, búsqueda, audiolibro y flashcards de señales |
-| Tests | Test diario, simulacro con reglas vigentes y refuerzo de errores anteriores |
-| Día D | Checklist municipal, ejercicios explicativos de reactímetro, punteo y tijeras/pulso |
-
-Copy motivacional solicitado, pendiente de validar para cada comuna: “¡Si apruebas el teórico y práctico, te sacan la foto de la licencia de inmediato, así que ve preparado/a para la cámara!”. La base muestra una invitación a confirmar el momento de la foto con la municipalidad.
-
-Las reglas y materiales deben tener fuente, fecha, licencia aplicable y revisión editorial. Este proyecto es independiente y no declara afiliación con CONASET ni acceso a su banco real de examen. El contenido propio se identificará como práctica. La hoja de ruta está en [docs/roadmap.md](docs/roadmap.md).
-
-## Calidad y flujo Git
+Requisitos: Node.js 22.13+, pnpm 11.19.0, Android SDK para compilar Android.
 
 ```sh
-pnpm check           # TypeScript + ESLint
-pnpm export:android  # Bundle de producción y assets; no genera un APK
+pnpm install --frozen-lockfile
+pnpm start
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm export:android
 ```
 
-GitHub Actions ejecuta esos controles en cada push a `main` y en pull requests. Trabajar en ramas cortas `feat/*`, `fix/*` o `docs/*`, subir a `origin` y abrir PR hacia `main`. Ver [CONTRIBUTING.md](CONTRIBUTING.md). La protección de rama requiere configuración adicional en GitHub.
+Para el proyecto conectado se usa `apps/mobile/.env` (ignorado por Git):
 
-Para generar un APK interno con EAS, primero vincular la app a un proyecto Expo, confirmar identificadores de paquete y configurar firma. Desde `apps/mobile`: `pnpm dlx eas-cli build --platform android --profile preview`. Los perfiles están preparados; no se ha solicitado una compilación en la nube.
+```dotenv
+EXPO_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+EXPO_PUBLIC_GOOGLE_AUTH_ENABLED=false
+```
 
-## Referencias técnicas
+La URL y la publishable key son públicas. Nunca incluir `service_role`, contraseñas ni tokens en la app. La migración `supabase/migrations/202609060002_study_progress.sql` crea la tabla privada de progreso, las políticas RLS y `sync_study_state`, que vuelve a calcular los puntajes antes de guardar.
 
-- [Expo SDK 57](https://docs.expo.dev/versions/v57.0.0/)
-- [Instalación de Expo Router](https://docs.expo.dev/router/installation/)
-- [Supabase Auth para React Native](https://supabase.com/docs/guides/auth/quickstarts/react-native)
+## Backend provisionado
 
-El archivo `apps/mobile/LICENSE` corresponde a la plantilla Expo. Aún no se ha seleccionado una licencia de distribución para el código propio del proyecto.
+El entorno de desarrollo de Proyecto 3X está en Supabase, región São Paulo, con ref `kmmbxfdngdkjreflmkyt`. La URL de retorno nativa `proyecto3x://auth/callback` y las URLs locales de desarrollo ya están permitidas. El proveedor Email está disponible; Google requiere añadir un Client ID y Client Secret propios en Supabase Authentication antes de activarlo.
+
+## Calidad y entrega
+
+`pnpm check` reúne tipos, lint y pruebas. Las pruebas actuales cubren reglas de simulacro, selección determinista, recuperación del temporizador, refuerzo, merge local/nube, aislamiento RLS, revalidación de puntajes y banco de preguntas. Android se compila con Expo prebuild y Gradle para una APK interna; para publicar se debe configurar firma de producción.
+
+Fuentes consultadas y enlazadas en la app: [Ley de Tránsito](https://www.bcn.cl/leychile/navegar?idNorma=1007469), [libro clase B de CONASET](https://mejoresconductores.conaset.cl/assets/data/pdf/B-ESP/Libro_para_la_conduccion_en_Chile_Clase_B_27-02-2026.pdf), [formato del examen](https://www.conaset.cl/mtt-anuncia-nuevo-examen-teorico-y-libro-de-estudio-para-la-obtencion-de-la-licencia-de-conducir/) y [Dirección de Tránsito de La Granja](https://www.municipalidadlagranja.cl/servicios/transito/).
+
+APK interna arm64: `artifacts/Proyecto3X-0.1.0-arm64-v8a.apk`. Está firmada con la clave de desarrollo local para pruebas; no es una firma de Play Store.
