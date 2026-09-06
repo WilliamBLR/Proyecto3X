@@ -1,0 +1,17 @@
+{
+  "name": "proyecto-3x",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "engines": { "node": ">=22.13.0 <25" },
+  "scripts": {
+    "start": "pnpm --filter @proyecto3x/mobile start",
+    "android": "pnpm --filter @proyecto3x/mobile android",
+    "ios": "pnpm --filter @proyecto3x/mobile ios",
+    "web": "pnpm --filter @proyecto3x/mobile web",
+    "typecheck": "pnpm --filter @proyecto3x/mobile typecheck",
+    "lint": "pnpm --filter @proyecto3x/mobile lint",
+    "check": "pnpm typecheck && pnpm lint",
+    "export:android": "pnpm --filter @proyecto3x/mobile export:android"
+  }
+}
