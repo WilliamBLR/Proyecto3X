@@ -4,14 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../theme/useTheme';
 
-type Props = PropsWithChildren<{ title: string; eyebrow: string; showTestAction?: boolean }>;
+type Props = PropsWithChildren<{ title: string; eyebrow: string; showTestAction?: boolean; back?: boolean }>;
 
-export function Screen({ title, eyebrow, showTestAction = true, children }: Props) {
+export function Screen({ title, eyebrow, showTestAction = true, back = false, children }: Props) {
   const { colors } = useTheme();
   const router = useRouter();
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={[styles.page, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+        {back && <Pressable accessibilityRole="button" onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={{ minHeight: 48, justifyContent: 'center' }}><Text style={{ color: colors.primary, fontWeight: '700' }}>← Volver</Text></Pressable>}
         <Text style={[styles.eyebrow, { color: colors.primary }]}>{eyebrow}</Text>
         <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>{title}</Text>
         {children}

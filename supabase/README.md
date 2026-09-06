@@ -1,9 +1,28 @@
 # Backend Supabase
 
-La migración crea preferencias con acceso limitado por usuario. Todavía no se ha aplicado a una instancia Supabase. El alta de perfil será un `upsert` explícito después de iniciar sesión.
+Proyecto 3X usa Auth y PostgreSQL para respaldar el progreso. El proyecto de desarrollo ya está creado en São Paulo. La app usa la URL y la publishable key desde `apps/mobile/.env`; nunca se debe empaquetar una clave `service_role`.
 
-Para desarrollo, instalar la CLI oficial y Docker, ejecutar `supabase init` en la raíz y luego `supabase start`. Aplicar la migración con `supabase migration up` sobre la instancia local. Copiar URL y publishable key a `apps/mobile/.env`; no copiar claves secretas ni `service_role`.
+## Migraciones
 
-Antes de usar una instancia remota, revisar la migración y enlazar el proyecto elegido. Configurar Email/Google, URLs de redirección y políticas de Storage al implementar los módulos. Generar tipos de base con Supabase CLI después de aplicar el esquema.
+1. `202609060001_profiles.sql` crea el perfil y su política por usuario.
+2. `202609060002_study_progress.sql` crea `study_states`, la tabla privada de preguntas, RLS y `sync_study_state(jsonb)`.
 
-Verificación pendiente de RLS: con dos usuarios A/B, A solo debe poder consultar y modificar A; insertar/actualizar B debe fallar; una sesión anónima no debe acceder a perfiles. Validar además cascada al borrar la cuenta y límites de meta diaria. No se ha ejecutado este control en esta entrega porque no hay backend provisionado.
+La RPC exige una sesión autenticada, limita el tamaño del documento, vuelve a calcular los puntajes con la clave privada del banco y fusiona intentos/eventos sin permitir escritura directa a la tabla. Las pruebas PGlite cubren usuario propio, usuario ajeno, sesión anónima, preguntas inventadas e idempotencia.
+
+Para otra instancia, aplicar las migraciones con la CLI oficial o copiarlas en el SQL Editor:
+
+```sh
+supabase db push
+```
+
+Configurar en Authentication → URL Configuration:
+
+```text
+Site URL: proyecto3x://auth/callback
+proyecto3x://auth/callback
+proyecto3x://auth/callback?recovery=1
+http://localhost:8081/auth/callback
+http://localhost:8081/auth/callback?recovery=1
+```
+
+Email/password ya está soportado por la app. Para Google, crear un OAuth Client en Google Cloud, registrar el callback de Supabase que muestra el panel de proveedores y copiar Client ID/Secret en Authentication → Sign In / Providers → Google. Después cambiar `EXPO_PUBLIC_GOOGLE_AUTH_ENABLED=true` al compilar.

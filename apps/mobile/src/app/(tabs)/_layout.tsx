@@ -1,11 +1,14 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/useTheme';
+import { useStudy } from '../../state/StudyProvider';
 
 export default function TabLayout() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { state } = useStudy();
+  if (!state.profile) return <Redirect href={'/onboarding' as never} />;
   return (
     <Tabs screenOptions={{
       headerShown: false,
